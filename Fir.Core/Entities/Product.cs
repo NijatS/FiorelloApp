@@ -18,7 +18,7 @@ namespace Fir.Core.Entities
         public string Dimension { get; set; }
         public double Price { get; set; }
         public int DiscountId { get; set; }
-        public Discount Discount { get; set; }
+        public Discount? Discount { get; set; }
         public bool InStock { get; set; }
         public List<ProductCategory>? ProductCategories { get; set; }
         public List<ProductTag>? ProductTags { get; set; }
