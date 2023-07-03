@@ -1,0 +1,13 @@
+﻿@model Position
+
+<div class="container">
+	<form method="post">
+		<div class="form-group">
+			<label for="name" >Name:</label>
+			<input type="text" class="form-control" asp-for="@Model.Name"/>
+		<span class="text text-danger" asp-validation-for="@Model.Name"></span>
+			@Html.AntiForgeryToken()
+		</div>
+	<button type="submit">Create</button>
+	</form>
+</div>
