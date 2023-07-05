@@ -19,10 +19,10 @@
                         <th>@item.Name</th>
                                 <th>@item.Price$</th>
                          <th><img style="width:100px;height:100px" src="~/assets/images/@item.ProductImages.FirstOrDefault(x=>x.isMain).Image" /></th>
-                        <td><a asp-controller="employee" asp-action="update" asp-route-id="@item.Id" >
+                        <td><a asp-controller="product" asp-action="update" asp-route-id="@item.Id" >
                             <i class="fas fa-edit text text-primary"></i></a></td>
                         <td><a onclick="if(!confirm('Are you sure?')){return false;}"
-                            asp-controller="employee" asp-action="delete" asp-route-id="@item.Id"
+                           asp-controller="product" asp-action="delete" asp-route-id="@item.Id"
                             class=" delete-item" ><i class="fas fa-trash text text-danger"></i></a></td>
                     </tr>
             }

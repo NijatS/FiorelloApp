@@ -62,7 +62,7 @@
 		<div class="form-group">
 			<label asp-for="DiscountId">Discount</label>
 			<select multiple asp-for="DiscountId" class="form-select" aria-label="Default select example">
-				<option selected>Choose one of them</option>
+				<option value="0" selected>Choose one of them</option>
 				@foreach (var item in ViewBag.Discounts)
 				{
 					<option value="@item.Id">@item.Percent%</option>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,21 @@ namespace Fir.Core.Entities
 {
     public class Product:BaseModel
     {
+        [Required]
         public string Name { get; set; }
-        public string Description { get; set; }
-        public string AddTitle { get; set; }
-        public string AddInfo { get; set; }
-        public double Weight { get; set; }
-        public string Dimension { get; set; }
-        public double Price { get; set; }
-        public int DiscountId { get; set; }
+		[Required]
+		public string Description { get; set; }
+		[Required]
+		public string AddTitle { get; set; }
+		[Required]
+		public string AddInfo { get; set; }
+		[Required]
+		public double Weight { get; set; }
+		[Required]
+		public string Dimension { get; set; }
+		[Required]
+		public double Price { get; set; }
+		public int? DiscountId { get; set; }
         public Discount? Discount { get; set; }
         public bool InStock { get; set; }
         public List<ProductCategory>? ProductCategories { get; set; }
@@ -28,6 +36,6 @@ namespace Fir.Core.Entities
         [NotMapped]
         public List<int> TagIds { get; set; }
         [NotMapped]
-        public List<IFormFile> FormFiles { get; set; }
+        public List<IFormFile>? FormFiles { get; set; }
     }
 }

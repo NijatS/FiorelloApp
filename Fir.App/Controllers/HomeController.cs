@@ -28,6 +28,12 @@ namespace Fir.App.Controllers
             homeVM.employees = await _context.Employees.Where(c => !c.IsDeleted)
                .Include(c=>c.Position)
                 .ToListAsync();
+            homeVM.products = await _context.Products.Where(c => !c.IsDeleted).
+                Include(c => c.ProductCategories)
+                 .ThenInclude(c => c.Category).
+                Include(c => c.ProductImages).
+                Include(c => c.Discount).
+                ToListAsync();
             return View(homeVM);
         }
 

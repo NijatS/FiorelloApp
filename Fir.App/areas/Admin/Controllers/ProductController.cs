@@ -62,7 +62,8 @@ namespace Fir.App.areas.Admin.Controllers
                 ModelState.AddModelError("", "Image must be added!");
                 return View(Product);
             }
-            foreach(var item in Product.FormFiles) {
+            foreach (var item in Product.FormFiles)
+            {
 
                 if (!Helper.isImage(item))
                 {
@@ -79,15 +80,16 @@ namespace Fir.App.areas.Admin.Controllers
                     CreatedDate = DateTime.Now,
                     Product = Product,
                     Image = item.CreateImage(_environment.WebRootPath, "assets/images"),
-                    isMain = i==0?true:false,
+                    isMain = i == 0 ? true : false,
                 };
                 await _context.ProductImages.AddAsync(productImage);
                 i++;
             }
+            Product.DiscountId = Product.DiscountId == 0 ? null : Product.DiscountId;
 
-            foreach(var item in Product.CategoryIds)
+            foreach (var item in Product.CategoryIds)
             {
-                if(!await _context.Categories.AnyAsync(x=>x.Id== item))
+                if (!await _context.Categories.AnyAsync(x => x.Id == item))
                 {
                     ModelState.AddModelError("", "Invalid Category Id");
                     return View(Product);
@@ -100,83 +102,187 @@ namespace Fir.App.areas.Admin.Controllers
                 };
                 await _context.ProductCategories.AddAsync(productCategory);
             }
-			foreach (var item in Product.TagIds)
-			{
-				if (!await _context.Tags.AnyAsync(x => x.Id == item))
-				{
-					ModelState.AddModelError("", "Invalid Tag Id");
-					return View(Product);
-				}
-				ProductTag productTag = new ProductTag
-				{
-					CreatedDate = DateTime.Now,
-					Product = Product,
-					TagId = item
-				};
-				await _context.ProductTags.AddAsync(productTag);
-			}
+            foreach (var item in Product.TagIds)
+            {
+                if (!await _context.Tags.AnyAsync(x => x.Id == item))
+                {
+                    ModelState.AddModelError("", "Invalid Tag Id");
+                    return View(Product);
+                }
+                ProductTag productTag = new ProductTag
+                {
+                    CreatedDate = DateTime.Now,
+                    Product = Product,
+                    TagId = item
+                };
+                await _context.ProductTags.AddAsync(productTag);
+            }
 
-			await _context.AddAsync(Product);
+            await _context.AddAsync(Product);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-
         }
-
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            ViewBag.Positions = await _context.Positions.Where(p => !p.IsDeleted ).ToListAsync();
+			ViewBag.Categories = await _context.Categories.
+			 Where(p => !p.IsDeleted).ToListAsync();
+			ViewBag.Tags = await _context.Tags
+				.Where(p => !p.IsDeleted).ToListAsync();
+			ViewBag.Discounts = await _context.Discounts.
+				Where(p => !p.IsDeleted).ToListAsync();
+
             Product? Product = await _context.Products.
-                  Where(c => !c.IsDeleted && c.Id == id).FirstOrDefaultAsync();
-            if (Product == null)
+				  Where(c => !c.IsDeleted && c.Id == id).
+				Include(x => x.ProductTags.Where(x=>!x.IsDeleted)).
+                   ThenInclude(x => x.Tag).
+                Include(x => x.ProductCategories.Where(x => !x.IsDeleted)).
+                   ThenInclude(x => x.Category).
+                Include(x => x.ProductImages.Where(x => !x.IsDeleted))
+              .FirstOrDefaultAsync();
+			if (Product == null)
             {
                 return NotFound();
             }
             return View(Product);
         }
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Update(int id,Product product)
+		{
+			ViewBag.Categories = await _context.Categories.
+			 Where(p => !p.IsDeleted).ToListAsync();
+			ViewBag.Tags = await _context.Tags
+				.Where(p => !p.IsDeleted).ToListAsync();
+			ViewBag.Discounts = await _context.Discounts.
+				Where(p => !p.IsDeleted).ToListAsync();
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Update(int id, Product Product)
-        //{
-       
-        //    Product? UpdateProduct = await _context.Products.
-        //        Where(c => !c.IsDeleted && c.Id == id).FirstOrDefaultAsync();
+			Product? UpdatedProduct = await _context.Products.
+                AsNoTracking().
+				  Where(c => !c.IsDeleted && c.Id == id).
+				Include(x => x.ProductTags.Where(x => !x.IsDeleted)).
+				   ThenInclude(x => x.Tag).
+				Include(x => x.ProductCategories.Where(x => !x.IsDeleted)).
+				   ThenInclude(x => x.Category).
+				Include(x => x.ProductImages.Where(x => !x.IsDeleted))
+			  .FirstOrDefaultAsync();
+			if (UpdatedProduct is null)
+			{
+				return NotFound();
+			}
+            if (!ModelState.IsValid)
+            {
+                return View(UpdatedProduct);
+            }
+            List<ProductCategory> RemoveableCategory = await _context.ProductCategories.
+                Where(x => !product.CategoryIds.Contains(x.CategoryId)).ToListAsync();
 
-        //    if (Product == null)
-        //    {
-        //        return NotFound();
-        //    }
+            _context.ProductCategories.RemoveRange(RemoveableCategory);
+            foreach(var item in product.CategoryIds)
+            {
+                if (_context.ProductCategories.Where(x => x.ProductId == id && x.CategoryId == item).Count()>0)
+                    continue;
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(UpdateProduct);
-        //    }
+                await _context.ProductCategories.AddAsync(new ProductCategory
+                {
+                    ProductId = id,
+                    CategoryId = item
+                });
+            }
+			List<ProductTag> RemoveableTag = await _context.ProductTags.
+			Where(x => !product.TagIds.Contains(x.TagId)).ToListAsync();
 
-        //    if (Product.FormFile != null)
-        //    {
-        //        if (!Helper.isImage(Product.FormFile))
-        //        {
-        //            ModelState.AddModelError("FormFile", "Wronggg!");
-        //            return View();
-        //        }
-        //        if (!Helper.isSizeOk(Product.FormFile, 1))
-        //        {
-        //            ModelState.AddModelError("FormFile", "Wronggg!");
-        //            return View();
-        //        }
-        //        Helper.RemoveImage(_environment.WebRootPath, "assets/images", UpdateProduct.Image);
-        //        UpdateProduct.Image = Product.FormFile.CreateImage(_environment.WebRootPath, "assets/images");
-        //    }
+			_context.ProductTags.RemoveRange(RemoveableTag);
+			foreach (var item in product.TagIds)
+			{
+				if (_context.ProductTags.Where(x => x.ProductId == id && x.TagId == item).Count() > 0)
+					continue;
 
-        //    UpdateProduct.FullName = Product.FullName;
-        //    UpdateProduct.Description = Product.Description;
-        //    UpdateProduct.PositionId = Product.PositionId;
-        //    UpdateProduct.UpdatedDate = DateTime.Now;
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
+				await _context.ProductTags.AddAsync(new ProductTag
+				{
+					ProductId = id,
+					TagId = item
+				});
+			}
+
+            product.DiscountId = product.DiscountId == 0 ? null : product.DiscountId;
+            if(product.FormFiles is not null && product.FormFiles.Count > 0)
+            {
+                foreach (var item in product.FormFiles)
+                {
+                    if (!Helper.isImage(item))
+                    {
+                        ModelState.AddModelError("", "The format of file is image!!");
+                        return View(UpdatedProduct);
+                    }
+                    if (!Helper.isSizeOk(item, 1))
+                    {
+                        ModelState.AddModelError("", "The size of image must less than 1mb!");
+                        return View(UpdatedProduct);
+                    }
+                    ProductImage productImage = new ProductImage
+                    {
+                        CreatedDate = DateTime.Now,
+                        Product = product,
+                        Image = item.CreateImage(_environment.WebRootPath, "assets/images"),
+                    };
+                    await _context.ProductImages.AddAsync(productImage);
+                }
+			}
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+			return RedirectToAction(nameof(Index));
+		}
+		public async Task<IActionResult> SetAsMainImage(int id)
+        {
+            ProductImage? productImage = await _context.ProductImages.FindAsync(id);
+
+            if(productImage is null)
+            {
+                return Json(new
+                {
+                    status = 404
+                }) ;
+			}
+            productImage.isMain = true;
+
+            ProductImage? productImage1 = await _context.ProductImages.Where(x=>x.isMain && x.ProductId==productImage.ProductId).FirstOrDefaultAsync();
+            productImage1.isMain = false;
+
+            await _context.SaveChangesAsync();
+            return Json(new { 
+            status=200
+            });
+        }
+        public async Task<IActionResult> RemoveImage(int id)
+        {
+            ProductImage? productImage = await _context.ProductImages.
+                Where(x => x.Id == id && !x.IsDeleted).
+                FirstOrDefaultAsync();
+            if(productImage is null)
+            {
+				return Json(new
+				{
+					status = 404,
+					desc = "Image not found"
+				});
+			}
+            if (productImage.isMain)
+            {
+                return Json(new
+                {
+                    status = 400,
+                    desc = "Main image is not deleted"
+                });
+            }
+            productImage.IsDeleted = true;
+            await _context.SaveChangesAsync();
+			return Json(new
+			{
+				status = 200
+			});
+		}
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
@@ -192,6 +298,5 @@ namespace Fir.App.areas.Admin.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

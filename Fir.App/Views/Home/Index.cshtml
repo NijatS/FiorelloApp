@@ -103,141 +103,32 @@
                             </div>
                         </div>
                     </div>
-                    <div   data-aos-offset="100"
-                   class="product col-lg-3 col-md-6 popular winter all">
-                        <div class="productImage">
-                            <img src="https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-14-img.jpg"
-                                alt="">
-
-                        </div>
-                        <div class="productTitle">
-                            <p>MAJESTY PALM</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="1">Add to cart</span><span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
-                        
+            @foreach(var item in Model.products)
+            {
+                <div data-aos-offset="100" class="product col-lg-3 col-md-6 
+                         @foreach(var cate in item.ProductCategories){@String.Concat(cate.Category.Name.ToLower()," ")}  all">
+                    <div class="productImage">
+                        <img src="~/assets/images/@item.ProductImages.FirstOrDefault(x=>x.isMain).Image"
+                             alt="">
                     </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 popular winter various all">
-                        <div class="productImage">
-                            <img src="https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-13-img.jpg"
-                                alt="">
-                        </div>
-                        <div class="productTitle">
-                            <p>FOXGLOW FLOWER</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="2">Add to cart</span> <span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
+                    <div class="productTitle">
+                        <p>@item.Name</p>
                     </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 popular winter all">
-                        <div class="productImage">
-                            <img src=" https://fiorello.qodeinteractive.com/wp-content/uploads/2018/05/shop-10-img.jpg"
-                                alt="">
-                            <span class="badge badge-dark bg-dark position-absolute"
-                                style=" top:3%;left: 8%;transform: scale(1.3);">SOLD</span>
-                        </div>
-                        <div class="productTitle">
-                            <p>SWEET ALYYSUM</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="3">Add to cart</span> <span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
+                    <div class="productPrice">
+                        @if(item.Discount is not null)
+                        {
+                            <span class="addToCardBtn" data-id="1">Add to cart</span><span>$</span><span>@item.Price</span>
+                            <span>$</span><span>@(item.Price-(item.Price * item.Discount.Percent / 100))</span>
+                        }
+                        else
+                        {
+                        <span class="addToCardBtn" data-id="1">Add to cart</span><span>$</span><span>@item.Price</span>
+                        }
                     </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 popular all">
-                        <div class="productImage">
-                            <img src="   https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-11-img.jpg"
-                                alt="">
-                        </div>
-                        <div class="productTitle">
-                            <p>SPRING SNOWFLAKE</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="4">Add to cart</span> <span>$</span><span>170</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
+                    <div class="addToCart">
                     </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 popular various all">
-                        <div class="productImage">
-                            <img src=" https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-12-img.jpg"
-                                alt="">
-                            <span class="badge text-dark bg-light position-absolute"
-                                style="top:3%;left: 8%; transform: scale(1.3);">SALE</span>
-                        </div>
-                        <div class="productTitle">
-                            <p>SCARLET SAGE</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="5">Add to cart</span> <span style="text-decoration: line-through;">$259</span>
-                            <span >$</span><span>170</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
-                    </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 various cactuses all">
-                        <div class="productImage">
-                            <img src=" https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-9-img.jpg"
-                                alt="">
-                        </div>
-                        <div class="productTitle">
-                            <p>ROCK SOAPWORT</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="6">Add to cart</span> <span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
-                    </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 greens all">
-                        <div class="productImage">
-                            <img src="https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-8-img.jpg"
-                                alt="">
-                        </div>
-                        <div class="productTitle">
-                            <p>SUMMER SAVORY</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="7">Add to cart</span> <span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
-                    </div>
-
-                    <div   data-aos-offset="100"   class="product col-lg-3 col-md-6 exotic all">
-                        <div class="productImage">
-                            <img src="https://fiorello.qodeinteractive.com/wp-content/uploads/2018/04/shop-7-img.jpg"
-                                alt="">
-                        </div>
-                        <div class="productTitle">
-                            <p>WILD ROSES</p>
-                        </div>
-                        <div class="productPrice">
-                            <span class="addToCardBtn" data-id="8">Add to cart</span> <span>$</span><span>259</span>
-                        </div>
-                        <div class="addToCart">
-
-                        </div>
-                    </div>
+                </div>
+                }
                 </div>
             </div>
         </section>
