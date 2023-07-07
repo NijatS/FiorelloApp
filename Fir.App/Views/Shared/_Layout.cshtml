@@ -1,4 +1,9 @@
-﻿
+﻿@inject Fir.App.Services.Interfaces.IBasketService basketService
+@{
+    List<Fir.App.ViewModels.BasketItemVM> basketItems = await basketService.GetAll();
+    int Count = 0;
+    double Total = 0;
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,9 +25,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     
-    <link rel="stylesheet" href="./assets/scss/owl.carousel.min.css">
-    <link rel="stylesheet" href="./assets/scss/owl.theme.default.min.css">
-    <link rel="stylesheet" href="./assets/scss/style.css">
+    <link rel="stylesheet" href="~/assets/scss/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/assets/scss/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/assets/scss/style.css">
 </head>
 
 <body>
@@ -277,17 +282,46 @@
                               </div>
                             <div class="basketList">
                                 <div class="listProducts">
+                                    @foreach(var item in basketItems)
+                                    {
+                                        {
+                                            Total+=item.Count*item.Price;
+                                            Count++;
+                                        }
+                                        <div class="product">
+                                            <div class="image">
+                                                <img src="~/assets/images/@item.Image">
+                                            </div>
+                                            <div>
+                                                <p class="product-name">@item.Name</p>
+                                                <p>
+                                                    <span class="product-count">
+                                                        @item.Count
+                                                    </span>
+                                                    X
+                                                    <span class="product-price">
+                                                        @item.Price
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <div>
+                                                    @*<a asp-controller="product" asp-action="RemoveBasket" asp-route-id="@item.ProductId" class="btn-product-delete" data-id="">x</a>*@
+                                                </div>
+                                            </div>
 
+                                        </div>
+                                    }
                                 </div>
 
                                 <div class="price-buttons">
                                     <div class="totalPrice">
                                         <div class="totalText">
-                                            <span>TOTAL :</span>
+                                            <span>TOTAL :@Count</span>
                                         </div>
                                         <div class="priceText">
                                             <span>$</span>
-                                            <span>0</span>
+                                            <span>@Total</span>
                                         </div>
                                     </div>
                                     <div class="viewCart-checkOut">

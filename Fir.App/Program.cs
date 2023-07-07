@@ -1,4 +1,6 @@
 using Fir.App.Context;
+using Fir.App.Services.Implementations;
+using Fir.App.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,8 @@ builder.Services.AddDbContext<FirDbContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IBasketService,BasketService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

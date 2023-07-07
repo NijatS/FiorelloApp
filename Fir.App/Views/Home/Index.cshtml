@@ -105,8 +105,10 @@
                     </div>
             @foreach(var item in Model.products)
             {
-                <div data-aos-offset="100" class="product col-lg-3 col-md-6 
-                         @foreach(var cate in item.ProductCategories){@String.Concat(cate.Category.Name.ToLower()," ")}  all">
+                <a asp-action="AddBasket" asp-controller="product" asp-route-id="@item.Id" data-aos-offset="100" class="product col-lg-3 col-md-6
+                         @foreach(var cate in item.ProductCategories){@String.Concat(cate.Category.Name.ToLower()," ")}  all"
+                   style="text-decoration:none;color: #6d6a6a;">
+
                     <div class="productImage">
                         <img src="~/assets/images/@item.ProductImages.FirstOrDefault(x=>x.isMain).Image"
                              alt="">
@@ -127,7 +129,7 @@
                     </div>
                     <div class="addToCart">
                     </div>
-                </div>
+                    </a>
                 }
                 </div>
             </div>
