@@ -45,5 +45,10 @@ namespace Fir.App.Controllers
             await _service.AddBasket(id);
             return RedirectToAction("index", "home");
         }
+        public async Task<IActionResult> RemoveBasket(int id)
+        {
+            await _service.Remove(id);
+            return RedirectToAction("index", "home");
+        }
     }
 }

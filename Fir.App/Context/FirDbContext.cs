@@ -1,11 +1,12 @@
 ﻿using Fir.Core.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fir.App.Context
 {
-    public class FirDbContext:DbContext
+    public class FirDbContext:IdentityDbContext<AppUser>
     {
-      public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<Employee> Employees { get; set; }

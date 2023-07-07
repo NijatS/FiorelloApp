@@ -7,5 +7,6 @@ namespace Fir.App.Services.Interfaces
     {
         public Task AddBasket(int id);
         public Task<List<BasketItemVM>> GetAll();
+        public Task Remove(int id);
     }
 }

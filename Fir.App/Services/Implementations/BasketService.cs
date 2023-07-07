@@ -59,7 +59,6 @@ namespace Fir.App.Services.Implementations
                 _contextAccessor.HttpContext?.Response.Cookies.Append("basket", CookiesJson);
             }
         }
-
         public async Task<List<BasketItemVM>> GetAll()
         {
             var CookiesJson = _contextAccessor.HttpContext?.Request.Cookies["basket"];
@@ -79,6 +78,7 @@ namespace Fir.App.Services.Implementations
                     {
                         BasketItemVM basketItem = new BasketItemVM
                         {
+                            ProductId = item.ProductId,
                             Name = product.Name,
                             Count = item.Count,
                             Image = product.ProductImages.Where(x => x.isMain && !x.IsDeleted).FirstOrDefault().Image,
@@ -89,8 +89,24 @@ namespace Fir.App.Services.Implementations
                 }
                 return basketItems;
             }
-           
             return new List<BasketItemVM>();
+        }
+
+        public async Task Remove(int id)
+        {
+            var JsonBasket = _contextAccessor.HttpContext.Request.Cookies["basket"];
+
+            if(JsonBasket is not null)
+            {
+                List<BasketVM>? baskets = JsonConvert.DeserializeObject<List<BasketVM>>(JsonBasket); 
+                BasketVM basket = baskets.FirstOrDefault(x=>x.ProductId == id);
+                if(basket is not null)
+                {
+                    baskets.Remove(basket);
+                    JsonBasket = JsonConvert.SerializeObject(baskets);
+                    _contextAccessor.HttpContext.Response.Cookies.Append("basket",JsonBasket);
+                }
+            }
         }
     }
 }
