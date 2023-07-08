@@ -1,12 +1,12 @@
 ﻿using Fir.App.ViewModels;
 using Fir.Core.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Fir.App.Controllers
+namespace Fir.App.areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class AccountController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -91,14 +91,6 @@ namespace Fir.App.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
-
-        }
-        [Authorize]
-        public async Task<IActionResult> Info()
-        {
-            string UserName = User.Identity.Name;
-            AppUser appUser = await _userManager.FindByNameAsync(UserName);
-            return View(appUser);
 
         }
         //public async Task<IActionResult> CreateRole()
