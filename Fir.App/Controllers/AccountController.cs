@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Net.Mail;
 
 namespace Fir.App.Controllers
 {
@@ -100,6 +102,140 @@ namespace Fir.App.Controllers
             AppUser appUser = await _userManager.FindByNameAsync(UserName);
             return View(appUser);
 
+        }
+        [Authorize]
+        public async Task<IActionResult> Update()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if(user is null)
+            {
+                return NotFound();
+            }
+            UpdatedUserVM model = new UpdatedUserVM()
+            {
+                Name = user.Name,
+                Email = user.Email,
+                UserName = user.UserName,
+                Surname = user.Surname
+            };
+            return View(model);
+        }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Update(UpdatedUserVM model)
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            if (user is null)
+            {
+                return NotFound();
+            }
+            user.Name = model.Name;
+            user.Email = model.Email;
+            user.Surname = model.Surname;
+            user.UserName = model.UserName;
+
+    
+           var result =  await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+                return View(model);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.NewPassword)){
+                 result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                if (!result.Succeeded)
+                {
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                    return View(model);
+                }
+
+            }
+            await _signInManager.SignInAsync(user,true);
+
+            return RedirectToAction(nameof(Info));
+        }
+        [HttpGet]
+        public async Task<IActionResult> ForgetPassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ForgetPassword(string mail)
+        {
+            var user = await _userManager.FindByEmailAsync(mail);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+           string? link= Url.Action(action: "ResetPassword", controller: "Account", values: new
+            {
+                token = token,
+                mail = mail
+            }, protocol: Request.Scheme);
+    
+            MailMessage mm = new MailMessage();
+            mm.To.Add(user.Email);
+            mm.Subject = "Reset Password";
+            mm.Body = $"<a href='{link}'>Click me for reseting your password</a>";
+            mm.IsBodyHtml = true;
+            mm.From = new MailAddress("nicatsoltanli03@gmail.com");
+
+            SmtpClient smtp = new SmtpClient("smtp.gmail.com");
+            smtp.Port = 587;
+            smtp.UseDefaultCredentials = false;
+            smtp.EnableSsl = true;
+            smtp.Credentials = new System.Net.NetworkCredential("nicatsoltanli03@gmail.com", "gmaagjxgczxovsrw");
+
+            await smtp.SendMailAsync(mm);
+            return RedirectToAction("index","home");
+        }
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string token,string mail)
+        {
+            var user = await _userManager.FindByEmailAsync(mail);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            ResetPasswordVM model = new ResetPasswordVM()
+            {
+                Token = token,
+                Email = mail,
+
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is null)
+            {
+                return NotFound();
+            }
+             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+                return View(model);
+            }
+            return RedirectToAction(nameof(Info));
         }
         //public async Task<IActionResult> CreateRole()
         //{

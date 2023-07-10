@@ -19,6 +19,7 @@ builder.Services.AddScoped<IBasketService,BasketService>();
 
 
 builder.Services.AddIdentity<AppUser,IdentityRole>()
+    .AddDefaultTokenProviders()
    .AddEntityFrameworkStores<FirDbContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -29,7 +30,8 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Lockout.AllowedForNewUsers = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireDigit = true;
-
+    //options.SignIn.RequireConfirmedEmail = true;
+    options.User.RequireUniqueEmail = true;
 });
 var app = builder.Build();
 
