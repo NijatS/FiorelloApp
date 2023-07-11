@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Net.Mail;
+using Fir.App.Services.Interfaces;
 
 namespace Fir.App.Controllers
 {
@@ -14,11 +15,15 @@ namespace Fir.App.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        public AccountController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        private readonly IWebHostEnvironment _env;
+        private readonly IMailService _mailService;
+        public AccountController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env, IMailService mailService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _env = env;
+            _mailService = mailService;
         }
 
         public IActionResult Index()
@@ -54,9 +59,31 @@ namespace Fir.App.Controllers
                 }
             }
             await _userManager.AddToRoleAsync(appUser, "User");
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            string? link = Url.Action(action: "VerifyEmail", controller: "Account", values: new
+            {
+                token = token,
+                mail = appUser.Email
+            }, protocol: Request.Scheme);
+
+            await _mailService.Send("nicatsoltanli03@gmail.com", appUser.Email,
+                "Verify Email", "Click me to verify email",link,appUser.Name+" "+appUser.Surname);
+
+            TempData["Register"] = "Please verify your email";
+
             return RedirectToAction("index", "home");
         }
-
+        public async Task<IActionResult> VerifyEmail(string token,string mail)
+        {
+            var user  = await _userManager.FindByEmailAsync(mail);
+            if(user is null)
+            {
+                return NotFound();
+            }
+            await _userManager.ConfirmEmailAsync(user, token);
+            await _signInManager.SignInAsync(user, isPersistent: true);
+            return RedirectToAction(nameof(Info));
+        }
         public async Task<IActionResult> Login()
         {
             return View();
@@ -185,21 +212,9 @@ namespace Fir.App.Controllers
                 token = token,
                 mail = mail
             }, protocol: Request.Scheme);
-    
-            MailMessage mm = new MailMessage();
-            mm.To.Add(user.Email);
-            mm.Subject = "Reset Password";
-            mm.Body = $"<a href='{link}'>Click me for reseting your password</a>";
-            mm.IsBodyHtml = true;
-            mm.From = new MailAddress("nicatsoltanli03@gmail.com");
-
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com");
-            smtp.Port = 587;
-            smtp.UseDefaultCredentials = false;
-            smtp.EnableSsl = true;
-            smtp.Credentials = new System.Net.NetworkCredential("nicatsoltanli03@gmail.com", "gmaagjxgczxovsrw");
-
-            await smtp.SendMailAsync(mm);
+   
+            await _mailService.Send("nicatsoltanli03@gmail.com", user.Email,
+            "Reset Password", "Click me for reseting password", link, user.Name +" "+ user.Surname);
             return RedirectToAction("index","home");
         }
         [HttpGet]

@@ -16,7 +16,8 @@ namespace Fir.App.Context
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Discount> Discounts { get; set; }
-
+        public DbSet<Basket> Baskets { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; }
         public FirDbContext(DbContextOptions<FirDbContext> options) : base(options)
         {
 

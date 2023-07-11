@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "dWtSEQOoPmOtYZdECEUowJkJpKE8i6VNxc1bQAHiq+g=",
+  "Hash": "2rrYJqvdaG0Z9qIEuLOU+WI68Mw7b8fG7hPyuO994A4=",
   "Source": "Fir.App",
   "BasePath": "_content/Fir.App",
   "Mode": "Default",
@@ -2701,6 +2701,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\assets\\scss\\style.scss"
+    },
+    {
+      "Identity": "C:\\Users\\Nijat\\OneDrive\\Desktop\\Code Academy\\FirApp\\Fir.App\\wwwroot\\assets\\Templates\\email.html",
+      "SourceId": "Fir.App",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Nijat\\OneDrive\\Desktop\\Code Academy\\FirApp\\Fir.App\\wwwroot\\",
+      "BasePath": "_content/Fir.App",
+      "RelativePath": "assets/Templates/email.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\assets\\Templates\\email.html"
     }
   ]
 }
