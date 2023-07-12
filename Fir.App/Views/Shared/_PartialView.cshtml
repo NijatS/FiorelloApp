@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Product>
+@foreach (var item in Model)
+{
+    <a asp-action="AddBasket" asp-controller="product" asp-route-id="@item.Id" data-aos-offset="100" class="product add-basket-product col-lg-3 col-md-6
+                         @foreach(var cate in item.ProductCategories){
+                      @String.Concat(cate.Category.Name.ToLower()," ")
+                              }  all"
+       style="text-decoration:none;color: #6d6a6a;">
+
+        <div class="productImage">
+            <img src="~/assets/images/@item.ProductImages.FirstOrDefault(x=>x.isMain).Image"
+                 alt="">
+        </div>
+        <div class="productTitle">
+            <p>@item.Name</p>
+        </div>
+        <div class="productPrice">
+            @if (item.Discount is not null)
+            {
+                <span class="addToCardBtn" data-id="1">Add to cart</span>
+
+                <span>$</span>
+
+                <span>@item.Price</span>
+                <span>$</span>
+
+                <span>@(item.Price - (item.Price * item.Discount.Percent / 100))</span>
+            }
+            else
+            {
+                <span class="addToCardBtn" data-id="1">Add to cart</span>
+
+                <span>$</span>
+
+                <span>@item.Price</span>
+            }
+        </div>
+        <div class="addToCart">
+        </div>
+    </a>
+}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const products = document.querySelectorAll(".add-basket-product ");
+    const listProducts = document.querySelector(".listProducts");
+    let totalCount = document.querySelector(".totalText");
+    let totalPrice = document.querySelector(".priceText span:last-child");
+    products.forEach(product=>{
+        product.addEventListener("click",(e)=>{
+            e.preventDefault();
+            let href = product.getAttribute("href");
+            let count = 0;
+            let price = 0;
+            fetch(href)
+             .then(x=>x.json())
+               .then(x=>{
+                    listProducts.innerHTML = ""
+                   x.forEach(basket=>{
+                        count++;
+                        price += basket.price * basket.count;
+                        let basketView = `
+                                            <div class="product">
+                                                <div class="image">
+                                                    <img src="/assets/images/${basket.image}">
+                                                </div>
+                                                <div>
+                                                    <p class="product-name">${basket.name}</p>
+                                                    <p>
+                                                        <span class="product-count">
+                                                           ${basket.count}
+                                                        </span>
+                                                        X
+                                                        <span class="product-price">
+                                                            ${basket.price}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <div>
+                                                        <a href="/product/RemoveBasket/${basket.productId}" class="btn-product-delete" data-id="">x</a>
+                                                    </div>
+                                                </div>
+
+                                            </div>`
+                        listProducts.innerHTML += basketView;
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        })
+
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Added successfully'
+                        })
+                   })
+                    totalCount.innerHTML =`<span>TOTAL : ${count}</span>`;
+                    totalPrice.innerHTML = price;
+               })
+        })
+    })
+</script>
+                

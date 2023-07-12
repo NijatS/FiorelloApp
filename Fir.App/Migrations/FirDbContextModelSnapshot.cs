@@ -101,10 +101,8 @@ namespace Fir.App.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AppUserId1")
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedDate")
@@ -118,7 +116,7 @@ namespace Fir.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId1");
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("Baskets");
                 });
@@ -623,7 +621,9 @@ namespace Fir.App.Migrations
                 {
                     b.HasOne("Fir.Core.Entities.AppUser", "AppUser")
                         .WithMany("Baskets")
-                        .HasForeignKey("AppUserId1");
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AppUser");
                 });
@@ -631,7 +631,7 @@ namespace Fir.App.Migrations
             modelBuilder.Entity("Fir.Core.Entities.BasketItem", b =>
                 {
                     b.HasOne("Fir.Core.Entities.Basket", "Basket")
-                        .WithMany("basketItems")
+                        .WithMany("BasketItems")
                         .HasForeignKey("BasketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -774,7 +774,7 @@ namespace Fir.App.Migrations
 
             modelBuilder.Entity("Fir.Core.Entities.Basket", b =>
                 {
-                    b.Navigation("basketItems");
+                    b.Navigation("BasketItems");
                 });
 
             modelBuilder.Entity("Fir.Core.Entities.Category", b =>

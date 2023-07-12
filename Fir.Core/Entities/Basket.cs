@@ -8,8 +8,8 @@ namespace Fir.Core.Entities
 {
     public class Basket:BaseModel
     {
-        public int AppUserId { get; set; }
+        public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }
-        public List<BasketItem> basketItems { get; set; }
+        public List<BasketItem> BasketItems { get; set; }
     }
 }

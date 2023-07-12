@@ -27,15 +27,20 @@ namespace Fir.App.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var JsonBasket = Request.Cookies["basket"];
-                AppUser appUser = await  _user.FindByNameAsync(User.Identity.Name);
                 if (JsonBasket != null)
                 {
-                    Basket basket = new Basket
+                    AppUser appUser = await  _user.FindByNameAsync(User.Identity.Name);
+                    Basket? basket = await _context.Baskets.Where(x=>!x.IsDeleted && x.AppUserId == appUser.Id).FirstOrDefaultAsync();
+                    if (basket is null)
                     {
-                        CreatedDate = DateTime.Now,
-                        AppUser = appUser,
-                    };
-                    await _context.AddAsync(basket);
+                        basket = new Basket
+                        {
+                            CreatedDate = DateTime.Now,
+                            AppUser = appUser,
+                        };
+                        await _context.AddAsync(basket);
+                    }
+                    
                     List<BasketItemVM>? basketItemVMs = JsonConvert.DeserializeObject<List<BasketItemVM>>(JsonBasket);
 
                     foreach (var item in basketItemVMs)
@@ -50,6 +55,7 @@ namespace Fir.App.Controllers
                         await _context.AddAsync(basketItem);
                     }
                     await _context.SaveChangesAsync();
+                    Response.Cookies.Delete("basket");
                 }
             }
             HomeVM homeVM=new HomeVM();
