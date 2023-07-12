@@ -30,7 +30,7 @@ namespace Fir.App.Controllers
                 if (JsonBasket != null)
                 {
                     AppUser appUser = await  _user.FindByNameAsync(User.Identity.Name);
-                    Basket? basket = await _context.Baskets.Where(x=>!x.IsDeleted && x.AppUserId == appUser.Id).FirstOrDefaultAsync();
+                    Basket? basket = await _context.Baskets.Include(x=>x.BasketItems.Where(x=>!x.IsDeleted)).Where(x=>!x.IsDeleted && x.AppUserId == appUser.Id).FirstOrDefaultAsync();
                     if (basket is null)
                     {
                         basket = new Basket
@@ -45,14 +45,26 @@ namespace Fir.App.Controllers
 
                     foreach (var item in basketItemVMs)
                     {
-                        BasketItem basketItem = new BasketItem
+                        BasketItem basketItem = default;
+                        if(basket.BasketItems != null)
                         {
-                            Basket = basket,
-                            Count = item.Count,
-                            CreatedDate = DateTime.Now,
-                            ProductId = item.ProductId,
-                        };
-                        await _context.AddAsync(basketItem);
+                            basketItem = basket.BasketItems.FirstOrDefault(x => x.ProductId == item.ProductId);
+                        }
+                        if(basketItem == null)
+                        {
+                            basketItem = new BasketItem
+                            {
+                                Basket = basket,
+                                Count = item.Count,
+                                CreatedDate = DateTime.Now,
+                                ProductId = item.ProductId,
+                            };
+                            await _context.AddAsync(basketItem);
+                        }
+                        else
+                        {
+                            basketItem.Count++;
+                        }
                     }
                     await _context.SaveChangesAsync();
                     Response.Cookies.Delete("basket");

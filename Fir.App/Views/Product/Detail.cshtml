@@ -44,7 +44,6 @@
                         <div class="price">
                             @if (Model.Product.Discount is not null)
                             {
-                                @*<p>$@Model.Product.Price</p>*@
                                 <p>$@(Model.Product.Price - (Model.Product.Price * Model.Product.Discount.Percent / 100))</p>
                             }
                             else
@@ -58,11 +57,11 @@
                             </p>
                         </div>
                         <div class="button">
-                            <input type="text" placeholder="Quantity">
+                            <input class="AddBasketInput" type="number" placeholder="Quantity">
                             <div class="counter">
                                 <i class="fas fa-chevron-left minus"></i><span class="counting">0</span><i class="fas fa-chevron-right plus"></i>
                             </div>
-                            <button type="button">ADD TO CART <span></span></button>
+                            <a class="AddBasketBtn" asp-action="AddBasket" asp-controller="product" asp-route-id="@Model.Product.Id" style="background-color:black;color:white;  padding:12px;" type="button">ADD TO CART <span></span></a>
                         </div>
                         <div class="details">
                             <span>SKU: <a href="">@Model.Product.Id</a></span>
@@ -259,3 +258,80 @@
         </div>
     </section>
 </main>
+
+@section Js{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+        const AddBasketBtn = document.querySelector(".AddBasketBtn");
+        const AddBasketInput = document.querySelector(".AddBasketInput");
+        const products = document.querySelectorAll(".add-basket-product ");
+        const listProducts = document.querySelector(".listProducts");
+        let totalCount = document.querySelector(".totalText");
+        let totalPrice = document.querySelector(".priceText span:last-child");
+        AddBasketBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            let href = AddBasketBtn.getAttribute("href");
+            href += `?count=${AddBasketInput.value}`;
+            let count = 0;
+            let price = 0;
+            fetch(href)
+                .then(x => x.json())
+                .then(x => {
+                    if (x.status == 200) {
+                        fetch("/product/getall")
+                            .then(y => y.json())
+                            .then(y => {
+                                listProducts.innerHTML = ""
+                                y.forEach(basket => {
+                                    count++;
+                                    price += basket.price * basket.count;
+                                    let basketView = `
+                                                    <div class="product">
+                                                        <div class="image">
+                                                            <img src="/assets/images/${basket.image}">
+                                                        </div>
+                                                        <div>
+                                                            <p class="product-name">${basket.name}</p>
+                                                            <p>
+                                                                <span class="product-count">
+                                                                   ${basket.count}
+                                                                </span>
+                                                                X
+                                                                <span class="product-price">
+                                                                    ${basket.price}
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <div>
+                                                                <a href="/product/RemoveBasket/${basket.productId}" class="btn-product-delete" data-id="">x</a>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>`
+                                    listProducts.innerHTML += basketView;
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Added successfully'
+                                    })
+                                })
+                                totalCount.innerHTML = `<span>TOTAL : ${count}</span>`;
+                                totalPrice.innerHTML = price;
+                            })
+                    }
+                })
+        })
+</script>
+}

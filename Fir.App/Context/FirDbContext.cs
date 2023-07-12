@@ -18,6 +18,8 @@ namespace Fir.App.Context
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<Basket> Baskets { get; set; }
         public DbSet<BasketItem> BasketItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public FirDbContext(DbContextOptions<FirDbContext> options) : base(options)
         {
 

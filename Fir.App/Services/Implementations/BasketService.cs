@@ -20,8 +20,7 @@ namespace Fir.App.Services.Implementations
             _contextAccessor = contextAccessor;
             _userManager = userManager;
         }
-
-        public async Task AddBasket(int id)
+        public async Task AddBasket(int id,int? count)
         {
             if (!await _context.Products.AnyAsync(x => x.Id == id && !x.IsDeleted))
             {
@@ -44,7 +43,7 @@ namespace Fir.App.Services.Implementations
                     BasketItem basketItem = new BasketItem()
                     {
                         Basket = basket,
-                        Count = 1,
+                        Count = count??1,
                         CreatedDate = DateTime.Now,
                         ProductId = id
                     };
@@ -58,7 +57,7 @@ namespace Fir.App.Services.Implementations
                         basketItem = new BasketItem()
                         {
                             Basket = basket,
-                            Count = 1,
+                            Count = count ?? 1,
                             CreatedDate = DateTime.Now,
                             ProductId = id
                         };
@@ -66,7 +65,7 @@ namespace Fir.App.Services.Implementations
                     }
                     else
                     {
-                        basketItem.Count++;
+                        basketItem.Count += count ?? 1;
                     }
                 }
                await _context.SaveChangesAsync();
@@ -80,7 +79,7 @@ namespace Fir.App.Services.Implementations
                     BasketVM basket = new BasketVM
                     {
                         ProductId = id,
-                        Count = 1
+                        Count = count?? 1
                     };
                     baskets.Add(basket);
                     CookiesJson = JsonConvert.SerializeObject(baskets);
@@ -96,13 +95,13 @@ namespace Fir.App.Services.Implementations
                         BasketVM basket1 = new BasketVM
                         {
                             ProductId = id,
-                            Count = 1
+                            Count = count ?? 1
                         };
                         baskets.Add(basket1);
                     }
                     else
                     {
-                        basket.Count++;
+                        basket.Count += count ?? 1;
                     }
                     CookiesJson = JsonConvert.SerializeObject(baskets);
                     _contextAccessor.HttpContext?.Response.Cookies.Append("basket", CookiesJson);
@@ -174,7 +173,6 @@ namespace Fir.App.Services.Implementations
             return new List<BasketItemVM>();
 
         }
-
         public async Task Remove(int id)
         {
             if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)

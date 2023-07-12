@@ -40,9 +40,13 @@ namespace Fir.App.Controllers
 
             return View(productVM);
         }
-        public async Task<IActionResult> AddBasket(int id)
+        public async Task<IActionResult> AddBasket(int id, int? count)
         {
-            await _service.AddBasket(id);
+            await _service.AddBasket(id,count);
+            return Json(new {status=200});
+        }
+        public async Task<IActionResult> GetAll()
+        {
             var result = await _service.GetAll();
             return Json(result);
         }

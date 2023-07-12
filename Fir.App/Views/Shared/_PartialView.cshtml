@@ -54,54 +54,60 @@
             fetch(href)
              .then(x=>x.json())
                .then(x=>{
-                    listProducts.innerHTML = ""
-                   x.forEach(basket=>{
-                        count++;
-                        price += basket.price * basket.count;
-                        let basketView = `
-                                            <div class="product">
-                                                <div class="image">
-                                                    <img src="/assets/images/${basket.image}">
-                                                </div>
-                                                <div>
-                                                    <p class="product-name">${basket.name}</p>
-                                                    <p>
-                                                        <span class="product-count">
-                                                           ${basket.count}
-                                                        </span>
-                                                        X
-                                                        <span class="product-price">
-                                                            ${basket.price}
-                                                        </span>
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <div>
-                                                        <a href="/product/RemoveBasket/${basket.productId}" class="btn-product-delete" data-id="">x</a>
+                 if(x.status == 200){
+                     fetch("/product/getall")
+                       .then(y=>y.json())
+                        .then(y=>{
+                                listProducts.innerHTML = ""
+                                y.forEach(basket => {
+                                    count++;
+                                    price += basket.price * basket.count;
+                                    let basketView = `
+                                                <div class="product">
+                                                    <div class="image">
+                                                        <img src="/assets/images/${basket.image}">
                                                     </div>
-                                                </div>
+                                                    <div>
+                                                        <p class="product-name">${basket.name}</p>
+                                                        <p>
+                                                            <span class="product-count">
+                                                               ${basket.count}
+                                                            </span>
+                                                            X
+                                                            <span class="product-price">
+                                                                ${basket.price}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <a href="/product/RemoveBasket/${basket.productId}" class="btn-product-delete" data-id="">x</a>
+                                                        </div>
+                                                    </div>
 
-                                            </div>`
-                        listProducts.innerHTML += basketView;
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.addEventListener('mouseenter', Swal.stopTimer)
-                                toast.addEventListener('mouseleave', Swal.resumeTimer)
-                            }
-                        })
+                                                </div>`
+                                    listProducts.innerHTML += basketView;
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                        }
+                                    })
 
-                        Toast.fire({
-                            icon: 'success',
-                            title: 'Added successfully'
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Added successfully'
+                                    })
+                                })
+                                totalCount.innerHTML = `<span>TOTAL : ${count}</span>`;
+                                totalPrice.innerHTML = price;
                         })
-                   })
-                    totalCount.innerHTML =`<span>TOTAL : ${count}</span>`;
-                    totalPrice.innerHTML = price;
+                 }
                })
         })
     })
